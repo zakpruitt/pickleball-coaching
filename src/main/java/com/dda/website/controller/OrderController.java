@@ -1,6 +1,6 @@
 package com.dda.website.controller;
 
-import com.dda.website.entity.Order;
+import com.dda.website.model.Order;
 import com.dda.website.service.OrderService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;

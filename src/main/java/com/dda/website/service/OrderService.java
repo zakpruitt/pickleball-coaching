@@ -1,6 +1,6 @@
 package com.dda.website.service;
 
-import com.dda.website.entity.Order;
+import com.dda.website.model.Order;
 import com.dda.website.repository.OrderRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

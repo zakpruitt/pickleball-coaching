@@ -1,4 +1,4 @@
-package com.dda.website.entity;
+package com.dda.website.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
