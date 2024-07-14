@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 /src/main/resources/database.db
+/src/main/resources/credentials.json
+/data
+/tokens
+/frontendtest
 
 ### STS ###
 .apt_generated

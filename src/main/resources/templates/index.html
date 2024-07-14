@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Payment Form</title>
+</head>
+
+<body>
+<form id="payment-form">
+    <label for="firstName">First Name:</label>
+    <input type="text" id="firstName" name="firstName" required><br>
+    <label for="lastName">Last Name:</label>
+    <input type="text" id="lastName" name="lastName" required><br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br>
+    <label for="note">Note:</label>
+    <textarea id="note" name="note"></textarea><br>
+    <label for="package">Package:</label>
+    <select id="package" name="package" required>
+        <option value="40">Basic - $40</option>
+        <option value="80">Premium - $80</option>
+    </select><br>
+    <label for="video">Upload Video:</label>
+    <input type="file" id="video" name="video" accept="video/*" required><br>
+    <button type="submit">Submit</button>
+</form>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.getElementById('payment-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const videoFile = formData.get('video');
+
+        const order = {
+            firstName: formData.get('firstName'),
+            lastName: formData.get('lastName'),
+            email: formData.get('email'),
+            note: formData.get('note'),
+            packageSelected: formData.get('package')
+        };
+
+        const orderResponse = await fetch('http://localhost:8080/api/orders/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(order)
+        });
+
+        if (orderResponse.status !== 200) {
+            alert('Order creation failed. Please try again.');
+            return;
+        }
+
+        const orderData = await orderResponse.json();
+        const customerOrderId = orderData.id;
+
+        // Upload the video file first
+        const videoFormData = new FormData();
+        videoFormData.append('file', videoFile);
+        videoFormData.append('customerOrderId', customerOrderId);
+
+        const videoResponse = await fetch('http://localhost:8080/api/payments/upload', {
+            method: 'POST',
+            body: videoFormData
+        });
+
+        if (videoResponse.status !== 200) {
+            alert('Video upload failed. Please try again.');
+            return;
+        }
+
+        const videoData = await videoResponse.json();
+
+        const payment = {
+            currencyAmount: formData.get('package') === '40' ? 4000 : 8000,
+            currencyType: 'usd',
+            customerOrder: orderData
+        };
+
+        const paymentResponse = await fetch('http://localhost:8080/api/payments/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payment)
+        });
+
+        if (paymentResponse.status !== 200) {
+            alert('Payment failed. Please try again.');
+            return;
+        }
+
+        const paymentData = await paymentResponse.json();
+
+        // Store order details and paymentId in session storage
+        sessionStorage.setItem('orderDetails', JSON.stringify(orderData));
+        sessionStorage.setItem('paymentId', paymentData.paymentId);
+
+        const stripe = Stripe('pk_test_51HTFVhIKXyH6MGqxpOKWCaIChjH6NVDuaCcn81RYpxjSlztnWZtLdkqkyH8fKZ61RHLqQK5eTyR4hFZYiWg59nVw00Zxz5YhAB');
+        stripe.redirectToCheckout({ sessionId: paymentData.checkoutUrl });
+    });
+
+    window.addEventListener('load', async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        if (sessionId) {
+            // Retrieve order details and paymentId from session storage
+            const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails'));
+            const paymentId = sessionStorage.getItem('paymentId');
+
+            if (orderDetails && paymentId) {
+                const finalizeResponse = await fetch(`http://localhost:8080/api/payments/finalize?paymentId=${paymentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderDetails)
+                });
+
+                if (finalizeResponse.status === 200) {
+                    alert('Order created successfully!');
+                    sessionStorage.removeItem('orderDetails');
+                    sessionStorage.removeItem('paymentId');
+                } else {
+                    alert('Order creation failed. Please contact support.');
+                }
+            }
+        }
+    });
+</script>
+</body>
+
+</html>

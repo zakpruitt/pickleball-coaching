@@ -1,9 +1,6 @@
 package com.dda.website.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
@@ -13,12 +10,17 @@ public class CustomerOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String firstName;
     private String lastName;
     private String email;
     private String note;
-    private String videoPath;
     private String packageSelected;
-    private boolean paymentStatus;
+
+    @OneToOne
+    @JoinColumn(name = "file_metadata_id")
+    private VideoFileMetadata videoFileMetadata;
+
+    @OneToOne(mappedBy = "customerOrder")
+    private Payment payment;
+
 }
