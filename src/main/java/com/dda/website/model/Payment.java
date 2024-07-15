@@ -19,6 +19,6 @@ public class Payment {
     private String paymentStatus;
 
     @OneToOne
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "customer_order_id", referencedColumnName = "id")
     private CustomerOrder customerOrder;
 }

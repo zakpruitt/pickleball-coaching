@@ -13,6 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @AllArgsConstructor
 public class PaymentService {
+
+    private final String SUCCESS_URL = "http://localhost:8080/success";
+    private final String CANCEL_URL = "http://localhost:8080/cancel";
+
     private final StripeService stripeService;
     private final PaymentRepository paymentRepository;
     private final CustomerOrderRepository customerOrderRepository;
@@ -20,10 +24,9 @@ public class PaymentService {
     @Transactional
     public Payment createPayment(Payment payment) {
         try {
-            String successUrl = "http://localhost:8080/success.html";
-            String cancelUrl = "http://localhost:8080/cancel.html";
 
-            Session session = stripeService.createCheckoutSession(payment.getCurrencyAmount(), payment.getCurrencyType(), successUrl, cancelUrl);
+
+            Session session = stripeService.createCheckoutSession(payment.getCurrencyAmount(), payment.getCurrencyType(), SUCCESS_URL, CANCEL_URL);
             payment.setStripePaymentId(session.getId());
             payment.setStripePaymentUrl(session.getUrl());
             payment.setPaymentStatus("Pending");

@@ -17,10 +17,10 @@ public class CustomerOrder {
     private String packageSelected;
 
     @OneToOne
-    @JoinColumn(name = "file_metadata_id")
+    @JoinColumn(name = "file_metadata_id", referencedColumnName = "id")
     private VideoFileMetadata videoFileMetadata;
 
     @OneToOne(mappedBy = "customerOrder")
+    @JoinColumn(name = "payment_id", referencedColumnName = "id")
     private Payment payment;
-
 }

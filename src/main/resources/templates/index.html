@@ -32,6 +32,7 @@
         const formData = new FormData(e.target);
         const videoFile = formData.get('video');
 
+        // create order
         const order = {
             firstName: formData.get('firstName'),
             lastName: formData.get('lastName'),
@@ -39,7 +40,6 @@
             note: formData.get('note'),
             packageSelected: formData.get('package')
         };
-
         const orderResponse = await fetch('http://localhost:8080/api/orders/create', {
             method: 'POST',
             headers: {
@@ -47,38 +47,34 @@
             },
             body: JSON.stringify(order)
         });
-
         if (orderResponse.status !== 200) {
             alert('Order creation failed. Please try again.');
             return;
         }
-
         const orderData = await orderResponse.json();
-        const customerOrderId = orderData.id;
 
         // Upload the video file first
         const videoFormData = new FormData();
+        const customerOrderId = orderData.id;
         videoFormData.append('file', videoFile);
         videoFormData.append('customerOrderId', customerOrderId);
 
-        const videoResponse = await fetch('http://localhost:8080/api/payments/upload', {
+        const videoResponse = await fetch('http://localhost:8080/api/videos/upload', {
             method: 'POST',
             body: videoFormData
         });
-
         if (videoResponse.status !== 200) {
             alert('Video upload failed. Please try again.');
             return;
         }
-
         const videoData = await videoResponse.json();
 
+        // create payment
         const payment = {
             currencyAmount: formData.get('package') === '40' ? 4000 : 8000,
             currencyType: 'usd',
             customerOrder: orderData
         };
-
         const paymentResponse = await fetch('http://localhost:8080/api/payments/create', {
             method: 'POST',
             headers: {
@@ -86,49 +82,17 @@
             },
             body: JSON.stringify(payment)
         });
-
         if (paymentResponse.status !== 200) {
             alert('Payment failed. Please try again.');
             return;
         }
-
         const paymentData = await paymentResponse.json();
 
         // Store order details and paymentId in session storage
         sessionStorage.setItem('orderDetails', JSON.stringify(orderData));
-        sessionStorage.setItem('paymentId', paymentData.paymentId);
+        sessionStorage.setItem('paymentId', paymentData.id);
 
-        const stripe = Stripe('pk_test_51HTFVhIKXyH6MGqxpOKWCaIChjH6NVDuaCcn81RYpxjSlztnWZtLdkqkyH8fKZ61RHLqQK5eTyR4hFZYiWg59nVw00Zxz5YhAB');
-        stripe.redirectToCheckout({ sessionId: paymentData.checkoutUrl });
-    });
-
-    window.addEventListener('load', async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('session_id');
-
-        if (sessionId) {
-            // Retrieve order details and paymentId from session storage
-            const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails'));
-            const paymentId = sessionStorage.getItem('paymentId');
-
-            if (orderDetails && paymentId) {
-                const finalizeResponse = await fetch(`http://localhost:8080/api/payments/finalize?paymentId=${paymentId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderDetails)
-                });
-
-                if (finalizeResponse.status === 200) {
-                    alert('Order created successfully!');
-                    sessionStorage.removeItem('orderDetails');
-                    sessionStorage.removeItem('paymentId');
-                } else {
-                    alert('Order creation failed. Please contact support.');
-                }
-            }
-        }
+        window.location.href = paymentData.checkoutUrl;
     });
 </script>
 </body>

@@ -2,22 +2,15 @@ package com.dda.website.controller;
 
 import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.Payment;
-import com.dda.website.model.VideoFileMetadata;
-import com.dda.website.repository.VideoFileMetadataRepository;
-import com.dda.website.service.GoogleDriveService;
 import com.dda.website.service.PaymentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -25,7 +18,6 @@ import java.util.UUID;
 @Slf4j
 public class PaymentController {
     private final PaymentService paymentService;
-    private final GoogleDriveService googleDriveService;
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createPayment(@RequestBody Payment payment) {
@@ -37,7 +29,7 @@ public class PaymentController {
         }
 
         Map<String, String> responseData = new HashMap<>();
-        responseData.put("paymentId", createdPayment.getId().toString());
+        responseData.put("id", createdPayment.getId().toString());
         responseData.put("checkoutUrl", createdPayment.getStripePaymentUrl());
 
         return ResponseEntity.ok(responseData);

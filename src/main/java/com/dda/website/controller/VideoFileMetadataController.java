@@ -1,8 +1,11 @@
 package com.dda.website.controller;
 
+import com.dda.website.VideoFileProcessingTypes;
 import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.VideoFileMetadata;
-import com.dda.website.repository.VideoFileMetadataRepository;
+import com.dda.website.service.CustomerOrderService;
+import com.dda.website.service.GoogleDriveService;
+import com.dda.website.service.VideoFileMetadataService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -14,43 +17,35 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/videos")
 @AllArgsConstructor
 @Slf4j
 public class VideoFileMetadataController {
+    private final VideoFileMetadataService videoFileMetadataService;
+    private final CustomerOrderService customerOrderService;
+    private final GoogleDriveService googleDriveService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("customerOrderId") Long customerOrderId) {
-        long startTime = System.currentTimeMillis();
-        log.info("Starting file upload at " + startTime);
+    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file,
+                                                          @RequestParam("customerOrderId") Long customerOrderId) {
+        VideoFileMetadata videoFileMetadata = VideoFileMetadata.builder()
+                .fileName(file.getOriginalFilename())
+                .fileType(file.getContentType())
+                .status(VideoFileProcessingTypes.IN_PROGRESS.toString())
+                .build();
+        videoFileMetadata = videoFileMetadataService.saveVideoFileMetadata(videoFileMetadata);
+        CustomerOrder customerOrder = customerOrderService.setVideoFileMetadataId(videoFileMetadata, customerOrderId);
 
-        // Store metadata
-        VideoFileMetadata metadata = new VideoFileMetadata();
-        metadata.setId(uploadId);
-        metadata.setFileName(file.getOriginalFilename());
-        metadata.setFileType(file.getContentType());
-        metadata.setStatus("IN_PROGRESS");
-        VideoFileMetadataRepository.save(metadata);
+        // Save the file synchronously
+        String tempFilePath = googleDriveService.saveFileSynchronously(file, videoFileMetadata.getId());
 
-        // Associate file metadata with customer order
-        CustomerOrder customerOrder = customerOrderRepository.findById(customerOrderId).orElseThrow(() -> new RuntimeException("CustomerOrder not found"));
-        customerOrder.setFileMetadata(metadata);
-        customerOrderRepository.save(customerOrder);
+        // Trigger asynchronous upload
+        googleDriveService.uploadFileAsync(tempFilePath, videoFileMetadata.getId(), customerOrder);
 
-        // Call the async method to upload the file
-        googleDriveService.uploadFileAsync(file, uploadId);
-
-        long endTime = System.currentTimeMillis();
-        log.info("Returning response at " + endTime);
-        log.info("Time taken to initiate upload: " + (endTime - startTime) + " ms");
-
-        // Return the unique ID to the client
         Map<String, String> response = new HashMap<>();
-        response.put("uploadId", uploadId);
+        response.put("uploadId", videoFileMetadata.getId());
         return ResponseEntity.ok(response);
     }
-
 }

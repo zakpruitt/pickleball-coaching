@@ -1,6 +1,5 @@
 package com.dda.website.service;
 
-import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.VideoFileMetadata;
 import com.dda.website.repository.VideoFileMetadataRepository;
 import lombok.AllArgsConstructor;
@@ -19,16 +18,8 @@ public class VideoFileMetadataService {
         return videoFileMetadataRepository.save(videoFileMetadata);
     }
 
-    public Optional<VideoFileMetadata> findVideoFileMetadataByUUID(String uuid) {
-        return videoFileMetadataRepository.findByUuid(uuid);
-    }
-
-    public String getUniqueUUID() {
-        String generatedUUID;
-        do {
-            generatedUUID = UUID.randomUUID().toString();
-        } while (videoFileMetadataRepository.existsByUuid(generatedUUID));
-        return generatedUUID;
+    public Optional<VideoFileMetadata> findVideoFileMetadataById(String uuid) {
+        return videoFileMetadataRepository.findById(uuid);
     }
 
 }
