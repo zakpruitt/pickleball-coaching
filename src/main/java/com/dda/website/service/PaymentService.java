@@ -1,6 +1,6 @@
 package com.dda.website.service;
 
-import com.dda.website.PaymentProcessingTypes;
+import com.dda.website.model.types.PaymentProcessingTypes;
 import com.dda.website.model.Payment;
 import com.dda.website.repository.PaymentRepository;
 import com.stripe.exception.StripeException;

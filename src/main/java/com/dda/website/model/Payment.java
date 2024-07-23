@@ -1,6 +1,6 @@
 package com.dda.website.model;
 
-import com.dda.website.PaymentProcessingTypes;
+import com.dda.website.model.types.PaymentProcessingTypes;
 import jakarta.persistence.*;
 import lombok.Data;
 

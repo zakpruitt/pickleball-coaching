@@ -1,6 +1,6 @@
 package com.dda.website.service;
 
-import com.dda.website.VideoFileProcessingTypes;
+import com.dda.website.model.types.VideoFileProcessingTypes;
 import com.dda.website.model.VideoFileMetadata;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;

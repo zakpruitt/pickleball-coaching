@@ -1,6 +1,6 @@
 package com.dda.website.service;
 
-import com.dda.website.VideoFileProcessingTypes;
+import com.dda.website.model.types.VideoFileProcessingTypes;
 import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.VideoFileMetadata;
 import com.dda.website.repository.VideoFileMetadataRepository;

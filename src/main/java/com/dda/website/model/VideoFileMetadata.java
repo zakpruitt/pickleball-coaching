@@ -1,6 +1,6 @@
 package com.dda.website.model;
 
-import com.dda.website.VideoFileProcessingTypes;
+import com.dda.website.model.types.VideoFileProcessingTypes;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
