@@ -62,15 +62,15 @@ public class GoogleDriveService {
                 log.warn("Failed to delete temporary file: {}", tempFile.getAbsolutePath());
             }
 
-            hydrateVideoFileMetadata(videoFileMetadata, uploadedFile.getWebViewLink(), VideoFileProcessingTypes.UPLOADED.toString());
+            hydrateVideoFileMetadata(videoFileMetadata, uploadedFile.getWebViewLink(), VideoFileProcessingTypes.UPLOADED);
             log.info("File uploaded to: {}", uploadedFile.getWebViewLink());
         } catch (Exception e) {
             log.error("Error during file upload", e);
-            hydrateVideoFileMetadata(videoFileMetadata, null, "FAILED");
+            hydrateVideoFileMetadata(videoFileMetadata, null, VideoFileProcessingTypes.FAILED);
         }
     }
 
-    private void hydrateVideoFileMetadata(VideoFileMetadata videoFileMetadata, String fileUrl, String status) {
+    private void hydrateVideoFileMetadata(VideoFileMetadata videoFileMetadata, String fileUrl, VideoFileProcessingTypes status) {
         videoFileMetadata.setFileUrl(fileUrl);
         videoFileMetadata.setStatus(status);
         videoFileMetadataService.updateVideoFileMetadata(videoFileMetadata);
