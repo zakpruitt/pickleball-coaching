@@ -26,73 +26,100 @@
 </form>
 
 <script src="https://js.stripe.com/v3/"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
 <script>
-    document.getElementById('payment-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const videoFile = formData.get('video');
+    $(document).ready(function () {
+        $('#payment-form').submit(async function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const videoFile = formData.get('video');
 
-        // create order
-        const order = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            note: formData.get('note'),
-            packageSelected: formData.get('package')
-        };
-        const orderResponse = await fetch('http://localhost:8080/api/orders/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(order)
+            const orderData = await createOrder(formData);
+            if (!orderData) return;
+
+            const videoData = await uploadVideo(videoFile, orderData.id);
+            if (!videoData) return;
+
+            const paymentData = await createPayment(formData, orderData);
+            if (!paymentData) return;
+
+            storeOrderDetails(orderData.id, paymentData.id);
+            redirectToPayment(paymentData.stripePaymentUrl);
         });
-        if (orderResponse.status !== 200) {
-            alert('Order creation failed. Please try again.');
-            return;
+
+        async function createOrder(formData) {
+            const order = {
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                note: formData.get('note'),
+                packageSelected: formData.get('package')
+            };
+
+            try {
+                const orderResponse = await $.ajax({
+                    url: 'http://localhost:8080/api/orders/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(order)
+                });
+                return orderResponse;
+            } catch (error) {
+                alert('Order creation failed. Please try again.');
+                return null;
+            }
         }
-        const orderData = await orderResponse.json();
 
-        // Upload the video file first
-        const videoFormData = new FormData();
-        const customerOrderId = orderData.id;
-        videoFormData.append('file', videoFile);
-        videoFormData.append('customerOrderId', customerOrderId);
+        async function uploadVideo(videoFile, customerOrderId) {
+            const videoFormData = new FormData();
+            videoFormData.append('file', videoFile);
+            videoFormData.append('customerOrderId', customerOrderId);
 
-        const videoResponse = await fetch('http://localhost:8080/api/videos/upload', {
-            method: 'POST',
-            body: videoFormData
-        });
-        if (videoResponse.status !== 200) {
-            alert('Video upload failed. Please try again.');
-            return;
+            try {
+                const videoResponse = await $.ajax({
+                    url: 'http://localhost:8080/api/videos/upload',
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: videoFormData
+                });
+                return videoResponse;
+            } catch (error) {
+                alert('Video upload failed. Please try again.');
+                return null;
+            }
         }
-        const videoData = await videoResponse.json();
 
-        // create payment
-        const payment = {
-            currencyAmount: formData.get('package') === '40' ? 4000 : 8000,
-            currencyType: 'usd',
-            customerOrder: orderData
-        };
-        const paymentResponse = await fetch('http://localhost:8080/api/payments/create', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payment)
-        });
-        if (paymentResponse.status !== 200) {
-            alert('Payment failed. Please try again.');
-            return;
+        async function createPayment(formData, orderData) {
+            const payment = {
+                currencyAmount: formData.get('package') === '40' ? 4000 : 8000,
+                currencyType: 'usd',
+                customerOrder: orderData
+            };
+
+            try {
+                const paymentResponse = await $.ajax({
+                    url: 'http://localhost:8080/api/payments/create',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payment)
+                });
+                return paymentResponse;
+            } catch (error) {
+                alert('Payment failed. Please try again.');
+                return null;
+            }
         }
-        const paymentData = await paymentResponse.json();
 
-        // Store order details and paymentId in session storage
-        sessionStorage.setItem('orderDetails', JSON.stringify(orderData));
-        sessionStorage.setItem('paymentId', paymentData.id);
+        function storeOrderDetails(orderId, paymentId) {
+            sessionStorage.setItem('customerOrderId', orderId);
+            sessionStorage.setItem('paymentId', paymentId);
+        }
 
-        window.location.href = paymentData.checkoutUrl;
+        function redirectToPayment(stripePaymentUrl) {
+            window.location.href = stripePaymentUrl;
+        }
     });
 </script>
 </body>

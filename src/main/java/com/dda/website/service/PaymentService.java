@@ -1,11 +1,11 @@
 package com.dda.website.service;
 
-import com.dda.website.model.CustomerOrder;
+import com.dda.website.PaymentProcessingTypes;
 import com.dda.website.model.Payment;
-import com.dda.website.repository.CustomerOrderRepository;
 import com.dda.website.repository.PaymentRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,37 +19,37 @@ public class PaymentService {
 
     private final StripeService stripeService;
     private final PaymentRepository paymentRepository;
-    private final CustomerOrderRepository customerOrderRepository;
+
+    public Payment findPaymentById(Long id) {
+        return paymentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found!"));
+    }
 
     @Transactional
     public Payment createPayment(Payment payment) {
         try {
-
-
             Session session = stripeService.createCheckoutSession(payment.getCurrencyAmount(), payment.getCurrencyType(), SUCCESS_URL, CANCEL_URL);
             payment.setStripePaymentId(session.getId());
             payment.setStripePaymentUrl(session.getUrl());
-            payment.setPaymentStatus("Pending");
-
+            payment.setStatus(PaymentProcessingTypes.IN_PROGRESS);
             return paymentRepository.save(payment);
         } catch (StripeException e) {
-            payment.setPaymentStatus("Failed");
+            payment.setStatus(PaymentProcessingTypes.FAILED);
             return paymentRepository.save(payment);
         }
     }
 
     @Transactional
-    public Payment finalizePayment(Long paymentId, CustomerOrder customerOrder) {
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment not found"));
-        customerOrderRepository.save(customerOrder);
-        payment.setCustomerOrder(customerOrder);
-        payment.setPaymentStatus("Success");
+    public Payment completePayment(Payment payment) {
+        payment.setStatus(PaymentProcessingTypes.COMPLETED);
         return paymentRepository.save(payment);
     }
 
-    public void updatePaymentStatus(Long paymentId, String status) {
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() -> new RuntimeException("Payment not found"));
-        payment.setPaymentStatus(status);
-        paymentRepository.save(payment);
+    @Transactional
+    public Payment failPayment(Payment payment) {
+        payment.setStatus(PaymentProcessingTypes.FAILED);
+        return paymentRepository.save(payment);
     }
+
+
 }

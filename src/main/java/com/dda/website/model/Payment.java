@@ -1,5 +1,6 @@
 package com.dda.website.model;
 
+import com.dda.website.PaymentProcessingTypes;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,9 +17,14 @@ public class Payment {
     private String stripePaymentUrl;
     private Long currencyAmount;
     private String currencyType;
-    private String paymentStatus;
+    private String status;
 
     @OneToOne
     @JoinColumn(name = "customer_order_id", referencedColumnName = "id")
     private CustomerOrder customerOrder;
+
+    public void setStatus(PaymentProcessingTypes status) {
+        this.status = status.toString();
+    }
+
 }

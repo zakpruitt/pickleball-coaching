@@ -1,6 +1,5 @@
 package com.dda.website.controller;
 
-import com.dda.website.VideoFileProcessingTypes;
 import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.VideoFileMetadata;
 import com.dda.website.service.CustomerOrderService;
@@ -15,9 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/videos")
 @AllArgsConstructor
@@ -28,24 +24,15 @@ public class VideoFileMetadataController {
     private final GoogleDriveService googleDriveService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
                                                           @RequestParam("customerOrderId") Long customerOrderId) {
-        VideoFileMetadata videoFileMetadata = VideoFileMetadata.builder()
-                .fileName(file.getOriginalFilename())
-                .fileType(file.getContentType())
-                .status(VideoFileProcessingTypes.IN_PROGRESS.toString())
-                .build();
-        videoFileMetadata = videoFileMetadataService.saveVideoFileMetadata(videoFileMetadata);
-        CustomerOrder customerOrder = customerOrderService.setVideoFileMetadataId(videoFileMetadata, customerOrderId);
+        CustomerOrder customerOrder = customerOrderService.findOrderById(customerOrderId);
+        VideoFileMetadata videoFileMetadata = videoFileMetadataService.createVideoFileMetadata(file, customerOrder);
 
-        // Save the file synchronously
         String tempFilePath = googleDriveService.saveFileSynchronously(file, videoFileMetadata.getId());
+        googleDriveService.uploadFileAsync(tempFilePath, videoFileMetadata);
 
-        // Trigger asynchronous upload
-        googleDriveService.uploadFileAsync(tempFilePath, videoFileMetadata.getId(), customerOrder);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("uploadId", videoFileMetadata.getId());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(videoFileMetadata.getId());
     }
+
 }

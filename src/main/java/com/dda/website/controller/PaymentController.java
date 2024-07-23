@@ -1,6 +1,5 @@
 package com.dda.website.controller;
 
-import com.dda.website.model.CustomerOrder;
 import com.dda.website.model.Payment;
 import com.dda.website.service.PaymentService;
 import lombok.AllArgsConstructor;
@@ -8,9 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payments")
@@ -20,34 +16,25 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createPayment(@RequestBody Payment payment) {
-        log.info("Starting payment creation " + System.currentTimeMillis());
+    public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
         Payment createdPayment = paymentService.createPayment(payment);
-        log.info("Finished at " + System.currentTimeMillis());
-        if ("Failed".equals(createdPayment.getPaymentStatus())) {
+        if ("Failed".equals(createdPayment.getStatus()))
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-
-        Map<String, String> responseData = new HashMap<>();
-        responseData.put("id", createdPayment.getId().toString());
-        responseData.put("checkoutUrl", createdPayment.getStripePaymentUrl());
-
-        return ResponseEntity.ok(responseData);
+        return ResponseEntity.ok(createdPayment);
     }
 
-    @PostMapping("/finalize")
-    public ResponseEntity<Void> finalizePayment(@RequestParam Long paymentId, @RequestBody CustomerOrder customerOrder) {
-        try {
-            paymentService.finalizePayment(paymentId, customerOrder);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    @PutMapping("/complete")
+    public ResponseEntity<Void> completePayment(@RequestParam Long paymentId) {
+        Payment payment = paymentService.findPaymentById(paymentId);
+        paymentService.completePayment(payment);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/{id}/update-payment-status")
-    public ResponseEntity<Void> updatePaymentStatus(@PathVariable Long id, @RequestBody Map<String, String> paymentStatus) {
-        paymentService.updatePaymentStatus(id, paymentStatus.get("paymentStatus"));
-        return ResponseEntity.ok().build();
+    @PutMapping("/fail")
+    public ResponseEntity<Void> failPayment(@RequestParam Long paymentId) {
+        Payment payment = paymentService.findPaymentById(paymentId);
+        paymentService.failPayment(payment);
+        return ResponseEntity.noContent().build();
     }
+
 }

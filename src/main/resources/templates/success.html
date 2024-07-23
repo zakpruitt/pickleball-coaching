@@ -3,6 +3,7 @@
 
 <head>
     <title>Payment Success</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -10,33 +11,29 @@
 <p>Your order is being processed. Please wait...</p>
 
 <script>
-    window.addEventListener('load', async () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const sessionId = urlParams.get('session_id');
+    $(window).on('load', async function () {
+        const customerOrderId = sessionStorage.getItem('customerOrderId');
+        const paymentId = sessionStorage.getItem('paymentId');
 
-        if (sessionId) {
-            // Retrieve order details and paymentId from session storage
-            const orderDetails = JSON.parse(sessionStorage.getItem('orderDetails'));
-            const paymentId = sessionStorage.getItem('paymentId');
-
-            if (orderDetails && paymentId) {
-                const finalizeResponse = await fetch(`http://localhost:8080/api/payments/finalize?paymentId=${paymentId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(orderDetails)
+        if (customerOrderId && paymentId) {
+            try {
+                const finalizeResponse = await $.ajax({
+                    url: `http://localhost:8080/api/payments/complete?paymentId=${paymentId}`,
+                    type: 'PUT',
+                    contentType: 'application/json'
                 });
 
-                if (finalizeResponse.status === 200) {
+                if (finalizeResponse) {
                     alert('Order created successfully!');
                     sessionStorage.removeItem('orderDetails');
                     sessionStorage.removeItem('paymentId');
                 } else {
+                    alert('Payment finalization failed. Please contact support.');
+                }
+            } catch (error) {
                     alert('Order creation failed. Please contact support.');
                 }
             }
-        }
     });
 </script>
 </body>

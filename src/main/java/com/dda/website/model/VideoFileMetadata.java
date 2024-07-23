@@ -1,5 +1,6 @@
 package com.dda.website.model;
 
+import com.dda.website.VideoFileProcessingTypes;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,4 +30,9 @@ public class VideoFileMetadata {
     @OneToOne
     @JoinColumn(name = "customer_order_id", referencedColumnName = "id")
     private CustomerOrder customerOrder;
+
+    public void setStatus(VideoFileProcessingTypes status) {
+        this.status = status.toString();
+    }
+
 }

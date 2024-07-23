@@ -18,9 +18,9 @@ public class CustomerOrderController {
         return ResponseEntity.ok(customerOrderService.saveOrder(customerOrder));
     }
 
-    // TODO: make controller advice
     @GetMapping("/{id}")
     public ResponseEntity<?> getCustomerOrder(@PathVariable Long id) {
         return ResponseEntity.ok(customerOrderService.findOrderById(id));
     }
+
 }

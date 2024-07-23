@@ -1,7 +1,7 @@
 package com.dda.website;
 
-public enum VideoFileProcessingTypes {
+public enum PaymentProcessingTypes {
     IN_PROGRESS,
-    UPLOADED,
+    COMPLETED,
     FAILED
 }
