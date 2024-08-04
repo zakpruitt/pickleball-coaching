@@ -13,7 +13,7 @@ public class CustomerOrderController {
 
     private final CustomerOrderService customerOrderService;
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity<CustomerOrder> createCustomerOrder(@RequestBody CustomerOrder customerOrder) {
         return ResponseEntity.ok(customerOrderService.saveOrder(customerOrder));
     }

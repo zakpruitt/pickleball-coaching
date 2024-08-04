@@ -1,6 +1,7 @@
 package com.dda.website.service;
 
 import com.dda.website.model.CustomerOrder;
+import com.dda.website.model.Payment;
 import com.dda.website.model.VideoFileMetadata;
 import com.dda.website.repository.CustomerOrderRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,17 +22,14 @@ public class CustomerOrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Customer Order not found!"));
     }
 
-    public CustomerOrder setVideoFileMetadataId(VideoFileMetadata videoFileMetadata, Long customerOrderId) {
-        CustomerOrder customerOrder = customerOrderRepository.findById(customerOrderId).orElseThrow(
-                () -> new RuntimeException("CustomerOrder not found")
-        );
+    public void setVideoFileMetadata(CustomerOrder customerOrder, VideoFileMetadata videoFileMetadata) {
         customerOrder.setVideoFileMetadata(videoFileMetadata);
-        return customerOrderRepository.save(customerOrder);
+        customerOrderRepository.save(customerOrder);
     }
 
-    public CustomerOrder setVideoFileMetadataId(VideoFileMetadata videoFileMetadata, CustomerOrder customerOrder) {
-        customerOrder.setVideoFileMetadata(videoFileMetadata);
-        return customerOrderRepository.save(customerOrder);
+    public void setPayment(CustomerOrder customerOrder, Payment payment) {
+        customerOrder.setPayment(payment);
+        customerOrderRepository.save(customerOrder);
     }
 
 }

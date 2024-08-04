@@ -41,7 +41,7 @@
             const videoData = await uploadVideo(videoFile, orderData.id);
             if (!videoData) return;
 
-            const paymentData = await createPayment(formData, orderData);
+            const paymentData = await createPayment(formData, orderData.id);
             if (!paymentData) return;
 
             storeOrderDetails(orderData.id, paymentData.id);
@@ -59,7 +59,7 @@
 
             try {
                 const orderResponse = await $.ajax({
-                    url: 'http://localhost:8080/api/orders/create',
+                    url: 'http://localhost:8080/api/orders/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(order)
@@ -91,16 +91,18 @@
             }
         }
 
-        async function createPayment(formData, orderData) {
+        async function createPayment(formData, customerOrderId) {
             const payment = {
                 currencyAmount: formData.get('package') === '40' ? 4000 : 8000,
                 currencyType: 'usd',
-                customerOrder: orderData
+                customerOrder: {
+                    id: customerOrderId
+                }
             };
 
             try {
                 const paymentResponse = await $.ajax({
-                    url: 'http://localhost:8080/api/payments/create',
+                    url: 'http://localhost:8080/api/payments/',
                     type: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(payment)

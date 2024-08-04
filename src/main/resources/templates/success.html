@@ -15,21 +15,17 @@
         const customerOrderId = sessionStorage.getItem('customerOrderId');
         const paymentId = sessionStorage.getItem('paymentId');
 
+
         if (customerOrderId && paymentId) {
             try {
-                const finalizeResponse = await $.ajax({
-                    url: `http://localhost:8080/api/payments/complete?paymentId=${paymentId}`,
+                await $.ajax({
+                    url: `http://localhost:8080/api/payments/complete`,
                     type: 'PUT',
-                    contentType: 'application/json'
+                    contentType: 'application/json',
+                    data: JSON.stringify()
                 });
-
-                if (finalizeResponse) {
-                    alert('Order created successfully!');
-                    sessionStorage.removeItem('orderDetails');
-                    sessionStorage.removeItem('paymentId');
-                } else {
-                    alert('Payment finalization failed. Please contact support.');
-                }
+                sessionStorage.removeItem('orderDetails');
+                sessionStorage.removeItem('paymentId');
             } catch (error) {
                     alert('Order creation failed. Please contact support.');
                 }

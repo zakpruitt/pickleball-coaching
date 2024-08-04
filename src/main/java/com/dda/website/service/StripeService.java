@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class StripeService {
-    @Value("${stripe.apiKey}")
+    @Value("${stripe.apiKey:default}")
     private String apiKey;
 
     @PostConstruct

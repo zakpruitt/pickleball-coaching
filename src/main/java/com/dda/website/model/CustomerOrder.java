@@ -16,11 +16,12 @@ public class CustomerOrder {
     private String note;
     private String packageSelected;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "file_metadata_id", referencedColumnName = "id")
     private VideoFileMetadata videoFileMetadata;
 
-    @OneToOne(mappedBy = "customerOrder")
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "payment_id", referencedColumnName = "id")
     private Payment payment;
+
 }

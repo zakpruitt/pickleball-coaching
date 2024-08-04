@@ -34,8 +34,7 @@ public class PaymentService {
             payment.setStatus(PaymentProcessingTypes.IN_PROGRESS);
             return paymentRepository.save(payment);
         } catch (StripeException e) {
-            payment.setStatus(PaymentProcessingTypes.FAILED);
-            return paymentRepository.save(payment);
+            return failPayment(payment);
         }
     }
 
@@ -50,6 +49,5 @@ public class PaymentService {
         payment.setStatus(PaymentProcessingTypes.FAILED);
         return paymentRepository.save(payment);
     }
-
 
 }

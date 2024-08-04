@@ -25,14 +25,16 @@ public class VideoFileMetadataController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
-                                                          @RequestParam("customerOrderId") Long customerOrderId) {
+                                             @RequestParam("customerOrderId") Long customerOrderId) {
         CustomerOrder customerOrder = customerOrderService.findOrderById(customerOrderId);
         VideoFileMetadata videoFileMetadata = videoFileMetadataService.createVideoFileMetadata(file, customerOrder);
+        customerOrderService.setVideoFileMetadata(customerOrder, videoFileMetadata);
 
         String tempFilePath = googleDriveService.saveFileSynchronously(file, videoFileMetadata.getId());
         googleDriveService.uploadFileAsync(tempFilePath, videoFileMetadata);
 
         return ResponseEntity.ok(videoFileMetadata.getId());
     }
+
 
 }
