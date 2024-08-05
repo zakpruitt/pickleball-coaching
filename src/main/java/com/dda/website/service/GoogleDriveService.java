@@ -1,7 +1,7 @@
 package com.dda.website.service;
 
-import com.dda.website.model.types.VideoFileProcessingTypes;
 import com.dda.website.model.VideoFileMetadata;
+import com.dda.website.model.types.VideoFileProcessingTypes;
 import com.google.api.client.http.FileContent;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
@@ -23,7 +23,7 @@ import java.util.Collections;
 @AllArgsConstructor
 @Slf4j
 public class GoogleDriveService {
-    private static final String FOLDER_ID = "1qdQsl5N6GGIIhZmo4F8iSZ2xs0kQJEwp";
+    private static final String FOLDER_ID = "1i-QFAHlPCMsjT1g9QCMqRsBI3m7IL4OV";
     private static final Path TEMP_DIR = Paths.get("./src/main/resources/temp/");
 
     private final Drive drive;

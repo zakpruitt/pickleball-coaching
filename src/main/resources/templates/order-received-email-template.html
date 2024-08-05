@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Received</title>
+    <style>
+        .email-container {
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .email-header, .email-footer {
+            background-color: #f8f8f8;
+            padding: 10px;
+        }
+        .email-body {
+            margin: 20px 0;
+        }
+        .signature {
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+        }
+        .order-details, .payment-details, .video-details {
+            margin: 20px 0;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="email-header">
+        <h2 style="color: #28a745;">Order Received</h2>
+    </div>
+    <div class="email-body">
+        <p>Dear <span class="highlight" th:text="${customerOrder.getFirstName()} + ' ' + ${customerOrder.getLastName()}"></span>,</p>
+        <p>Thank you for your order! Here are the details:</p>
+
+        <div class="order-details">
+            <h3>Order Details</h3>
+            <p><span class="highlight">Order ID:</span> <span th:text="${customerOrder.getId()}"></span></p>
+            <p><span class="highlight">Package Selected:</span> <span th:text="${customerOrder.getPackageSelected()}"></span></p>
+            <p><span class="highlight">Note:</span> <span th:text="${customerOrder.getNote()}"></span></p>
+        </div>
+
+        <div class="payment-details">
+            <h3>Payment Details</h3>
+            <p><span class="highlight">Payment ID:</span> <span th:text="${customerOrder.getPayment().getId()}"></span></p>
+            <p><span class="highlight">Amount:</span> <span th:text="${customerOrder.getPayment().getCurrencyAmount()}"></span></p>
+            <p><span class="highlight">Status:</span> <span th:text="${customerOrder.getPayment().getStatus()}"></span></p>
+        </div>
+
+        <div class="video-details">
+            <h3>Video File Details</h3>
+            <p><span class="highlight">File Name:</span> <span th:text="${customerOrder.getVideoFileMetadata().getFileName()}"></span></p>
+            <p><span class="highlight">File Type:</span> <span th:text="${customerOrder.getVideoFileMetadata().getFileType()}"></span></p>
+            <p><span class="highlight">File URL:</span> <span th:text="${customerOrder.getVideoFileMetadata().getFileUrl()}"></span></p>
+            <p><span class="highlight">Status:</span> <span th:text="${customerOrder.getVideoFileMetadata().getStatus()}"></span></p>
+        </div>
+    </div>
+    <div class="signature">
+        <p>Best regards,</p>
+        <p>Your Company</p>
+    </div>
+    <div class="email-footer">
+        <p>&copy; 2024 DriveDrop Academy. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>

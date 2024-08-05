@@ -15,19 +15,18 @@
         const customerOrderId = sessionStorage.getItem('customerOrderId');
         const paymentId = sessionStorage.getItem('paymentId');
 
-
         if (customerOrderId && paymentId) {
             try {
                 await $.ajax({
                     url: `http://localhost:8080/api/payments/complete`,
                     type: 'PUT',
                     contentType: 'application/json',
-                    data: JSON.stringify()
+                    data: JSON.stringify(paymentId)
                 });
                 sessionStorage.removeItem('orderDetails');
                 sessionStorage.removeItem('paymentId');
             } catch (error) {
-                    alert('Order creation failed. Please contact support.');
+                    alert('Payment completion status FAILED. Your payment succeeded, but it failed to register in our system. Support has been contacted, and we will reach out to you via email.');
                 }
             }
     });

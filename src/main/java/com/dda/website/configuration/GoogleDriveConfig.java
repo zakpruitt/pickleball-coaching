@@ -15,7 +15,7 @@ import java.util.Collections;
 
 @Configuration
 public class GoogleDriveConfig {
-    private static final String APPLICATION_NAME = "DriveDrop Academy";
+    private static final String APPLICATION_NAME = "DriveDrop Academy Application";
     private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     @Bean

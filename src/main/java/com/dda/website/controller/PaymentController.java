@@ -22,13 +22,11 @@ public class PaymentController {
     public ResponseEntity<Payment> createPayment(@RequestBody Payment payment) {
         CustomerOrder customerOrder = customerOrderService.findOrderById(payment.getCustomerOrder().getId());
         payment.setCustomerOrder(customerOrder);
-
         Payment createdPayment = paymentService.createPayment(payment);
         customerOrderService.setPayment(customerOrder, createdPayment);
         if ("Failed".equals(createdPayment.getStatus())) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
         return ResponseEntity.ok(createdPayment);
     }
 

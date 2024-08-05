@@ -1,6 +1,7 @@
 package com.dda.website.controller;
 
-import com.dda.website.service.EmailServiceImpl;
+import com.dda.website.service.EmailService;
+import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,11 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @AllArgsConstructor
 public class WebPageController {
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
 
     @GetMapping("/")
-    public String index() {
-        emailService.sendSimpleMessage("pruittzn@gmail.com", "basuga", "awesome");
+    public String index() throws MessagingException {
+        //emailService.sendSimpleMessage("pruittzn@gmail.com", "basuga", "awesome");
         return "index";
     }
 

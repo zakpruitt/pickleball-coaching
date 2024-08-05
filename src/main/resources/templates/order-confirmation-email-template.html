@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        .email-container {
+            font-family: Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .email-header, .email-footer {
+            background-color: #f8f8f8;
+            padding: 10px;
+        }
+        .email-body {
+            margin: 20px 0;
+        }
+        .signature {
+            margin-top: 20px;
+            font-style: italic;
+            color: #555;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+<div class="email-container">
+    <div class="email-header">
+        <h2 style="color: #28a745;">Order Confirmation</h2>
+    </div>
+    <div class="email-body">
+        <p>Dear <span class="highlight" th:text="${customerOrder.getFirstName()} + ' ' + ${customerOrder.getLastName()}"></span>,</p>
+        <p>Your order has been confirmed! Here are the details:</p>
+
+        <div class="order-details">
+            <h3>Order Details</h3>
+            <p><span class="highlight">Order ID:</span> <span th:text="${customerOrder.getId()}"></span></p>
+            <p><span class="highlight">Package Selected:</span> <span th:text="${customerOrder.getPackageSelected()}"></span></p>
+            <p><span class="highlight">Note:</span> <span th:text="${customerOrder.getNote()}"></span></p>
+        </div>
+    </div>
+    <div class="signature">
+        <p>Best regards,</p>
+        <p>Your Company</p>
+    </div>
+    <div class="email-footer">
+        <p>&copy; 2024 Your Company. All rights reserved.</p>
+    </div>
+</div>
+</body>
+</html>
